@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Activador · Pinturerias Mendoza</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2bbcd4;
+    --coral: #d95f5a;
+    --gold: #f5b731;
+    --petrol: #0a5c73;
+    --dark: #0d1f26;
+    --surface: #132a33;
+    --surface2: #1a3540;
+    --border: rgba(43,188,212,0.15);
+    --text: #e8f4f7;
+    --text-dim: #7aa8b5;
+    --success: #2ecc71;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; padding-bottom: 40px; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--petrol) 0%, #0d2f3d 100%);
+    padding: 18px 20px 16px; position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid var(--teal); display: flex; align-items: center; gap: 12px;
+  }
+  .header-logo {
+    width: 38px; height: 38px; background: var(--teal); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 18px;
+    color: var(--dark); flex-shrink: 0;
+  }
+  .header-text h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); line-height: 1; }
+  .header-text p { font-size: 12px; color: var(--teal); margin-top: 2px; font-weight: 500; }
+  .header-gps { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .gps-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(43,188,212,0.12); border: 1px solid rgba(43,188,212,0.3); color: var(--text-dim); transition: all 0.3s; }
+  .gps-badge.active { color: var(--teal); border-color: var(--teal); background: rgba(43,188,212,0.18); }
+  .gps-badge.error { color: var(--coral); border-color: var(--coral); background: rgba(217,95,90,0.12); }
+  .gps-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
+  .gps-badge.active .gps-dot { background: var(--teal); animation: pulse 1.5s infinite; }
+  .gps-badge.error .gps-dot { background: var(--coral); }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+  /* DATETIME BAR */
+  .datetime-bar { background: var(--surface); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .datetime-bar span { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+  .datetime-bar strong { color: var(--gold); }
+
+  /* FORM */
+  .form-container { padding: 16px; }
+  .section { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); }
+  .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  input[type="text"], input[type="number"], input[type="tel"], textarea, select {
+    width: 100%; background: var(--dark); border: 1.5px solid rgba(43,188,212,0.2);
+    border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--teal); }
+  textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237aa8b5' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  }
+
+  /* GPS FIELD */
+  .gps-field { background: var(--dark); border: 1.5px solid rgba(43,188,212,0.2); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .gps-field-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+  .gps-field-dot.active { background: var(--teal); animation: pulse 1.5s infinite; }
+  .gps-field-dot.error { background: var(--coral); }
+  .gps-field-info { flex: 1; min-width: 0; }
+  .gps-field-status { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+  .gps-field-status.active { color: var(--teal); }
+  .gps-field-status.error { color: var(--coral); }
+  .gps-field-coords { font-size: 11px; color: var(--text-dim); margin-top: 3px; word-break: break-all; }
+  .gps-map-link { font-size: 12px; color: var(--teal); text-decoration: none; font-weight: 700; flex-shrink: 0; border: 1px solid rgba(43,188,212,0.3); padding: 4px 10px; border-radius: 20px; }
+
+  /* CONTACTOS */
+  .contacto-card { background: var(--dark); border: 1.5px solid rgba(43,188,212,0.15); border-radius: 12px; padding: 14px; margin-bottom: 10px; position: relative; }
+  .contacto-num { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .contacto-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .contacto-row.full { grid-template-columns: 1fr; margin-bottom: 0; }
+  .btn-remove-contacto { position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%; background: rgba(217,95,90,0.15); border: 1px solid rgba(217,95,90,0.3); color: var(--coral); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .btn-add-contacto { width: 100%; padding: 12px; margin-top: 10px; background: transparent; border: 1.5px dashed rgba(43,188,212,0.3); border-radius: 10px; color: var(--teal); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-add-contacto:active { background: rgba(43,188,212,0.08); }
+
+  /* CHIPS */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 8px 14px; border-radius: 20px; border: 1.5px solid rgba(43,188,212,0.25); background: var(--dark); color: var(--text-dim); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; user-select: none; }
+  .chip.selected { background: var(--teal); border-color: var(--teal); color: var(--dark); font-weight: 700; }
+
+  /* RESULTADO */
+  .result-group { display: flex; gap: 8px; }
+  .result-chip { padding: 14px 16px; border-radius: 10px; border: 1.5px solid rgba(43,188,212,0.2); background: var(--dark); color: var(--text-dim); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; flex: 1; user-select: none; line-height: 1.3; }
+  .result-chip.interesado { border-color: rgba(46,204,113,0.3); }
+  .result-chip.interesado.selected { background: var(--success); border-color: var(--success); color: #fff; }
+  .result-chip.no-intereso { border-color: rgba(217,95,90,0.3); }
+  .result-chip.no-intereso.selected { background: var(--coral); border-color: var(--coral); color: #fff; }
+
+  /* PRODUCTOS */
+  .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prod-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--dark); border-radius: 10px; border: 1.5px solid rgba(43,188,212,0.15); cursor: pointer; transition: all 0.2s; user-select: none; }
+  .prod-item.checked { border-color: var(--teal); background: rgba(43,188,212,0.08); }
+  .prod-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid rgba(43,188,212,0.3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .prod-item.checked .prod-check { background: var(--teal); border-color: var(--teal); }
+  .prod-check-icon { display: none; color: var(--dark); font-size: 11px; font-weight: 900; }
+  .prod-item.checked .prod-check-icon { display: block; }
+  .prod-label { font-size: 13px; color: var(--text-dim); font-weight: 500; line-height: 1.3; }
+  .prod-item.checked .prod-label { color: var(--text); }
+  .otro-especificar { display: none; margin-top: 10px; }
+  .otro-especificar.visible { display: block; }
+
+  /* FOTO */
+  .foto-area { border: 2px dashed rgba(43,188,212,0.25); border-radius: var(--radius); padding: 24px 16px; text-align: center; cursor: pointer; position: relative; }
+  .foto-icon { font-size: 32px; margin-bottom: 8px; }
+  .foto-text { font-size: 14px; color: var(--text-dim); }
+  .foto-text strong { color: var(--teal); display: block; margin-bottom: 4px; }
+  #foto-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  #foto-preview { display: none; margin-top: 12px; }
+  #foto-preview img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; }
+
+  /* BOTÓN ENVIAR */
+  .btn-enviar { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--teal), var(--petrol)); border: none; border-radius: var(--radius); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+  .btn-enviar:active { transform: scale(0.98); }
+  .btn-enviar:disabled { opacity: 0.6; }
+
+  /* WHATSAPP */
+  .btn-wsp { width: 100%; padding: 15px; background: #25D366; border: none; border-radius: var(--radius); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 10px; display: none; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+
+  /* SUCCESS */
+  .success-overlay { display: none; position: fixed; inset: 0; background: rgba(13,31,38,0.96); z-index: 200; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 30px; }
+  .success-overlay.show { display: flex; }
+  .success-icon { font-size: 72px; margin-bottom: 16px; animation: bounceIn 0.5s; }
+  @keyframes bounceIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
+  .success-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; color: var(--teal); margin-bottom: 8px; }
+  .success-sub { color: var(--text-dim); font-size: 15px; line-height: 1.5; margin-bottom: 28px; }
+  .btn-nueva { padding: 16px 32px; background: var(--teal); border: none; border-radius: var(--radius); color: var(--dark); font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; cursor: pointer; margin-bottom: 12px; width: 100%; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface2); border: 1px solid var(--border); border-radius: 30px; padding: 12px 22px; font-size: 14px; font-weight: 500; color: var(--text); z-index: 300; transition: transform 0.3s; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: var(--coral); color: var(--coral); }
+
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .required { color: var(--coral); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">PM</div>
+  <div class="header-text">
+    <h1>Activador de Calle</h1>
+    <p>Pinturerias Mendoza</p>
+  </div>
+  <div class="header-gps">
+    <div class="gps-badge" id="gps-badge">
+      <div class="gps-dot"></div>
+      <span id="gps-label">Ubicando...</span>
+    </div>
+  </div>
+</header>
+
+<div class="datetime-bar">
+  <span id="fecha-display">—</span>
+  <span><strong id="hora-display">—</strong></span>
+</div>
+
+<div class="form-container">
+
+  <!-- OBRA -->
+  <div class="section">
+    <div class="section-title">📍 Datos de la Obra</div>
+
+    <div class="field">
+      <label>Dirección <span class="required">*</span></label>
+      <input type="text" id="direccion" placeholder="Ej: Av. San Martín 1250" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Localidad <span class="required">*</span></label>
+      <input type="text" id="localidad" placeholder="Ej: Godoy Cruz, Luján de Cuyo...">
+    </div>
+
+    <div class="field">
+      <label>Ubicación GPS</label>
+      <div class="gps-field" id="gps-field">
+        <div class="gps-field-dot" id="gps-field-dot"></div>
+        <div class="gps-field-info">
+          <div class="gps-field-status" id="gps-field-status">Obteniendo ubicación...</div>
+          <div class="gps-field-coords" id="gps-field-coords"></div>
+        </div>
+        <a class="gps-map-link" id="gps-map-link" href="#" target="_blank" style="display:none">Ver mapa</a>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Etapa de la obra</label>
+      <div class="chip-group" id="etapa-chips">
+        <div class="chip" data-val="Inicio">🏗 Inicio</div>
+        <div class="chip" data-val="En proceso">🔨 En proceso</div>
+        <div class="chip" data-val="Terminación">🖌 Terminación</div>
+        <div class="chip" data-val="Mantenimiento">🔧 Mantenimiento</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTOS -->
+  <div class="section">
+    <div class="section-title">👥 Contactos de la Obra</div>
+    <div id="contactos-container"></div>
+    <button class="btn-add-contacto" id="btn-add-contacto">+ Agregar contacto</button>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <div class="section">
+    <div class="section-title">🎨 Productos Detectados</div>
+    <div class="prod-grid">
+      <div class="prod-item" data-prod="Látex interior">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Látex interior</span>
+      </div>
+      <div class="prod-item" data-prod="Látex exterior">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Látex exterior</span>
+      </div>
+      <div class="prod-item" data-prod="Esmalte">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Esmalte</span>
+      </div>
+      <div class="prod-item" data-prod="Fijador / Sellador">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Fijador / Sellador</span>
+      </div>
+      <div class="prod-item" data-prod="Impermeabilizante">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Impermeabilizante</span>
+      </div>
+      <div class="prod-item" data-prod="Masilla / Enduído">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Masilla / Enduído</span>
+      </div>
+      <div class="prod-item" data-prod="Barniz / Lasur">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Barniz / Lasur</span>
+      </div>
+      <div class="prod-item" data-prod="Revestimiento">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Revestimiento</span>
+      </div>
+      <div class="prod-item" data-prod="Membrana rollo">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Membrana rollo</span>
+      </div>
+      <div class="prod-item" data-prod="Machimbre PVC">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Machimbre PVC</span>
+      </div>
+      <div class="prod-item" id="prod-otro" data-prod="Otro">
+        <div class="prod-check"><span class="prod-check-icon">✓</span></div>
+        <span class="prod-label">Otro</span>
+      </div>
+    </div>
+    <div class="otro-especificar" id="otro-especificar">
+      <label>Especificar "Otro"</label>
+      <input type="text" id="otro-texto" placeholder="Describí el producto...">
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="section">
+    <div class="section-title">📊 Resultado de la Visita</div>
+
+    <div class="field">
+      <label>Interés del contacto <span class="required">*</span></label>
+      <div class="result-group">
+        <div class="result-chip interesado" data-val="Se ve interesado">👍 Se ve interesado</div>
+        <div class="result-chip no-intereso" data-val="No interesó">👎 No interesó</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notas de la visita</label>
+      <textarea id="notas" placeholder="Qué se habló, qué necesita, detalles importantes..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Próximo paso</label>
+      <select id="proximoPaso">
+        <option value="">Sin acción pendiente</option>
+        <option value="Llamar en 2 días">Llamar en 2 días</option>
+        <option value="Llamar en 1 semana">Llamar en 1 semana</option>
+        <option value="Enviar cotización">Enviar cotización</option>
+        <option value="Visitar nuevamente">Visitar nuevamente</option>
+        <option value="Coordinar entrega">Coordinar entrega</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- FOTO -->
+  <div class="section">
+    <div class="section-title">📷 Foto de la Obra</div>
+    <div class="foto-area" id="foto-area">
+      <input type="file" id="foto-input" accept="image/*" capture="environment">
+      <div class="foto-icon">📸</div>
+      <div class="foto-text">
+        <strong>Tocar para sacar foto</strong>
+        Se adjunta automáticamente al registro
+      </div>
+    </div>
+    <div id="foto-preview">
+      <img id="foto-img" src="" alt="Foto de la obra">
+    </div>
+  </div>
+
+  <!-- VEHÍCULO -->
+  <div class="section">
+    <div class="section-title">🚗 Vehículo</div>
+    <div class="field">
+      <label>Kilometraje actual</label>
+      <input type="number" id="km" placeholder="Ej: 54320">
+    </div>
+    <div class="field">
+      <label>Muestras entregadas</label>
+      <input type="text" id="muestras" placeholder="Ej: 2 muestras látex Colorín">
+    </div>
+  </div>
+
+  <button class="btn-enviar" id="btn-enviar">Registrar visita →</button>
+  <a class="btn-wsp" id="btn-wsp" target="_blank">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Enviar resumen por WhatsApp
+  </a>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-icon">✅</div>
+  <div class="success-title">¡Visita registrada!</div>
+  <div class="success-sub" id="success-sub">Los datos se guardaron en la planilla.</div>
+  <button class="btn-nueva" onclick="nuevaVisita()">+ Nueva visita</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/a/macros/mendozapinturerias.com.ar/s/AKfycbxsTrU4zqJfHxLsyLGeB2MkR7fftjopE1Ir-7Rpvi_v2Vhsm0lC2NxrgfunibAK40ot/exec';
+const WSP_NUMBER = ''; // Ej: '5492615001234'
+
+let gpsData = { lat: null, lng: null, link: '' };
+let etapaSeleccionada = '';
+let resultadoSeleccionado = '';
+let fotoBase64 = '';
+let contactoCount = 0;
+
+// ── DATETIME ──
+function updateDatetime() {
+  const now = new Date();
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('fecha-display').textContent = `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]}`;
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('hora-display').textContent = `${h}:${m}`;
+}
+updateDatetime();
+setInterval(updateDatetime, 30000);
+
+// ── GPS ──
+function initGPS() {
+  const badge = document.getElementById('gps-badge');
+  const label = document.getElementById('gps-label');
+  const dot = document.getElementById('gps-field-dot');
+  const status = document.getElementById('gps-field-status');
+  const coords = document.getElementById('gps-field-coords');
+  const mapLink = document.getElementById('gps-map-link');
+
+  if (!navigator.geolocation) {
+    badge.className = 'gps-badge error';
+    label.textContent = 'Sin GPS';
+    dot.className = 'gps-field-dot error';
+    status.textContent = 'GPS no disponible en este dispositivo';
+    status.className = 'gps-field-status error';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      gpsData.lat = pos.coords.latitude.toFixed(6);
+      gpsData.lng = pos.coords.longitude.toFixed(6);
+      gpsData.link = `https://maps.google.com/?q=${gpsData.lat},${gpsData.lng}`;
+
+      badge.className = 'gps-badge active';
+      label.textContent = 'GPS activo';
+      dot.className = 'gps-field-dot active';
+      status.textContent = '📍 Ubicación capturada';
+      status.className = 'gps-field-status active';
+      coords.textContent = `${gpsData.lat}, ${gpsData.lng}`;
+      mapLink.href = gpsData.link;
+      mapLink.style.display = 'block';
+    },
+    err => {
+      badge.className = 'gps-badge error';
+      label.textContent = 'Sin permiso';
+      dot.className = 'gps-field-dot error';
+      status.textContent = 'Permiso GPS denegado';
+      status.className = 'gps-field-status error';
+      coords.textContent = 'Activá la ubicación en el navegador';
+    },
+    { enableHighAccuracy: true, timeout: 12000 }
+  );
+}
+initGPS();
+
+// ── CONTACTOS ──
+function addContacto() {
+  contactoCount++;
+  const n = contactoCount;
+  const container = document.getElementById('contactos-container');
+  const div = document.createElement('div');
+  div.className = 'contacto-card';
+  div.id = `contacto-${n}`;
+  div.innerHTML = `
+    <div class="contacto-num">Contacto ${n}</div>
+    ${n > 1 ? `<button class="btn-remove-contacto" onclick="removeContacto(${n})">×</button>` : ''}
+    <div class="contacto-row">
+      <div>
+        <label>Nombre</label>
+        <input type="text" id="c-nombre-${n}" placeholder="Nombre...">
+      </div>
+      <div>
+        <label>Rol</label>
+        <select id="c-rol-${n}">
+          <option value="">Seleccioná</option>
+          <option value="Pintor">Pintor</option>
+          <option value="Dueño de obra">Dueño de obra</option>
+          <option value="Constructora">Constructora</option>
+          <option value="Arquitecto">Arquitecto</option>
+          <option value="Encargado">Encargado</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="contacto-row full">
+      <div>
+        <label>Celular</label>
+        <input type="tel" id="c-cel-${n}" placeholder="Ej: 261 4123456">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeContacto(n) {
+  const el = document.getElementById(`contacto-${n}`);
+  if (el) el.remove();
+}
+
+document.getElementById('btn-add-contacto').addEventListener('click', addContacto);
+addContacto();
+
+// ── ETAPA ──
+document.querySelectorAll('#etapa-chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#etapa-chips .chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    etapaSeleccionada = chip.dataset.val;
+  });
+});
+
+// ── RESULTADO ──
+document.querySelectorAll('.result-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.result-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    resultadoSeleccionado = chip.dataset.val;
+  });
+});
+
+// ── PRODUCTOS ──
+document.querySelectorAll('.prod-item').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('checked');
+    if (item.id === 'prod-otro') {
+      document.getElementById('otro-especificar').classList.toggle('visible', item.classList.contains('checked'));
+    }
+  });
+});
+
+// ── FOTO ──
+document.getElementById('foto-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoBase64 = e.target.result;
+    document.getElementById('foto-img').src = fotoBase64;
+    document.getElementById('foto-preview').style.display = 'block';
+    document.querySelector('.foto-text strong').textContent = '✓ Foto cargada';
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── TOAST ──
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── ENVIAR ──
+document.getElementById('btn-enviar').addEventListener('click', enviarVisita);
+
+async function enviarVisita() {
+  const direccion = document.getElementById('direccion').value.trim();
+  const localidad = document.getElementById('localidad').value.trim();
+
+  if (!direccion) { showToast('⚠️ Ingresá la dirección de la obra', true); return; }
+  if (!localidad) { showToast('⚠️ Ingresá la localidad', true); return; }
+  if (!resultadoSeleccionado) { showToast('⚠️ Seleccioná el resultado de la visita', true); return; }
+
+  // Contactos
+  const contactosTexto = [];
+  document.querySelectorAll('.contacto-card').forEach(card => {
+    const id = card.id.replace('contacto-', '');
+    const nombre = document.getElementById(`c-nombre-${id}`)?.value.trim() || '';
+    const rol = document.getElementById(`c-rol-${id}`)?.value || '';
+    const cel = document.getElementById(`c-cel-${id}`)?.value.trim() || '';
+    if (nombre || cel) {
+      contactosTexto.push(`${nombre}${rol ? ' ('+rol+')' : ''}${cel ? ' — Tel: '+cel : ''}`);
+    }
+  });
+
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-AR');
+  const hora = now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+
+  let productosArr = [...document.querySelectorAll('.prod-item.checked')].map(p => p.dataset.prod);
+  const otroTexto = document.getElementById('otro-texto').value.trim();
+  if (otroTexto) productosArr = productosArr.map(p => p === 'Otro' ? `Otro: ${otroTexto}` : p);
+  const productos = productosArr.join(', ') || '—';
+
+  const payload = {
+    fecha, hora,
+    direccion,
+    localidad,
+    direccionCompleta: `${direccion}, ${localidad}`,
+    gps: gpsData.link || '—',
+    coordenadas: gpsData.lat ? `${gpsData.lat}, ${gpsData.lng}` : '—',
+    contactos: contactosTexto.join(' | ') || '—',
+    etapaObra: etapaSeleccionada || '—',
+    productos,
+    resultado: resultadoSeleccionado,
+    notas: document.getElementById('notas').value || '—',
+    proximoPaso: document.getElementById('proximoPaso').value || '—',
+    kmVehiculo: document.getElementById('km').value || '—',
+    muestras: document.getElementById('muestras').value || '—',
+    foto: fotoBase64 ? '📷 Foto adjunta' : '—'
+  };
+
+  const resumen =
+    `🎨 *PINTURERIAS MENDOZA — Visita registrada*\n\n` +
+    `📍 *Obra:* ${payload.direccion}, ${payload.localidad}\n` +
+    `👥 *Contactos:* ${payload.contactos}\n` +
+    `🏗 *Etapa:* ${payload.etapaObra}\n` +
+    `🎯 *Resultado:* ${payload.resultado}\n` +
+    `🛒 *Productos:* ${payload.productos}\n` +
+    `📋 *Próximo paso:* ${payload.proximoPaso}\n` +
+    `📝 *Notas:* ${payload.notas}\n` +
+    `🗺 *GPS:* ${payload.gps}\n` +
+    `🕐 *Registrado:* ${payload.fecha} ${payload.hora}`;
+
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('success-sub').textContent = `Visita en ${payload.direccion}, ${payload.localidad} — ${hora}.`;
+    document.getElementById('success-overlay').classList.add('show');
+
+    const wspBtn = document.getElementById('btn-wsp');
+    wspBtn.href = WSP_NUMBER
+      ? `https://wa.me/${WSP_NUMBER}?text=${encodeURIComponent(resumen)}`
+      : `https://wa.me/?text=${encodeURIComponent(resumen)}`;
+    wspBtn.style.display = 'flex';
+
+  } catch(err) {
+    showToast('❌ Error al enviar. Verificá tu conexión.', true);
+    btn.disabled = false;
+    btn.innerHTML = 'Registrar visita →';
+  }
+}
+
+// ── NUEVA VISITA ──
+function nuevaVisita() {
+  document.getElementById('success-overlay').classList.remove('show');
+  document.getElementById('btn-wsp').style.display = 'none';
+
+  ['direccion','localidad','notas','km','muestras','otro-texto'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('proximoPaso').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.result-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.prod-item').forEach(c => c.classList.remove('checked'));
+  document.getElementById('otro-especificar').classList.remove('visible');
+  document.getElementById('foto-preview').style.display = 'none';
+  document.querySelector('.foto-text strong').textContent = 'Tocar para sacar foto';
+  document.getElementById('contactos-container').innerHTML = '';
+  contactoCount = 0;
+  addContacto();
+
+  fotoBase64 = '';
+  etapaSeleccionada = '';
+  resultadoSeleccionado = '';
+
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = false;
+  btn.innerHTML = 'Registrar visita →';
+
+  initGPS();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
