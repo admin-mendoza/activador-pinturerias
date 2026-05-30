@@ -1,0 +1,22 @@
+{
+  "name": "Activador Pinturerias Mendoza",
+  "short_name": "Activador PM",
+  "description": "Registro de visitas a obras",
+  "start_url": "/activador-pinturerias/activador_pinturerias-1.html",
+  "display": "standalone",
+  "background_color": "#0d1f26",
+  "theme_color": "#2bbcd4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
